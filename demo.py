@@ -1,4 +1,9 @@
+import sys
+from pathlib import Path
+
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "game-tracking-data-pipeline"))
 from tracking import connect
 
 games = pd.read_csv("combine-data/games.csv")

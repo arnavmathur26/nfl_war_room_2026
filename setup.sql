@@ -1,5 +1,17 @@
-CREATE DATABASE combine_results;
+-- Creates and loads the shared tables in Neon (database: neondb).
+-- Run from inside combine-data/ so the \copy filenames resolve:
+--   cd combine-data
+--   set -a; source ../.env.local; set +a
+--   psql "$DATABASE_URL_UNPOOLED" -v ON_ERROR_STOP=1 -f ../setup.sql
+--
+-- WARNING: this DROPS and recreates every table below, so rerunning it
+-- replaces whatever is in them. It runs as one transaction: if any step
+-- fails, nothing is changed.
+-- Game tracking data is not loaded here; it lives in Parquet (see tracking.py).
 
+BEGIN;
+
+DROP TABLE IF EXISTS combine_results;
 CREATE TABLE combine_results (
     draft_year INTEGER,
     nfl_id  INTEGER,
@@ -24,6 +36,7 @@ CREATE TABLE combine_results (
 \copy combine_results FROM 'combine_results.csv' WITH (FORMAT csv, HEADER true, NULL 'NA');
 
 
+DROP TABLE IF EXISTS combine_tracking;
 CREATE TABLE combine_tracking (
     draft_year SMALLINT,
     event_id TEXT,
@@ -44,6 +57,7 @@ CREATE TABLE combine_tracking (
 \copy combine_tracking FROM 'combine_tracking.csv' WITH (FORMAT csv, HEADER true, NULL 'NA');
 
 
+DROP TABLE IF EXISTS games;
 CREATE TABLE games (
     game_id INTEGER,
     game_key INTEGER,
@@ -57,6 +71,7 @@ CREATE TABLE games (
 \copy games FROM 'games.csv' WITH (FORMAT csv, HEADER true, NULL 'NA');
 
 
+DROP TABLE IF EXISTS players;
 CREATE TABLE players (
     nfl_id INTEGER,
     display_name TEXT,
@@ -73,6 +88,7 @@ CREATE TABLE players (
 \copy players FROM 'players.csv' WITH (FORMAT csv, HEADER true, NULL 'NA');
 
 
+DROP TABLE IF EXISTS player_career_successes;
 CREATE TABLE player_career_successes (
     nfl_id INTEGER,
     career_offensive_snaps SMALLINT,
@@ -88,6 +104,7 @@ CREATE TABLE player_career_successes (
 \copy player_career_successes FROM 'player_career_successes.csv' WITH (FORMAT csv, HEADER true, NULL 'NA');
 
 
+DROP TABLE IF EXISTS player_play;
 CREATE TABLE player_play (
     game_id INTEGER,
     play_id INTEGER,
@@ -157,4 +174,4 @@ CREATE TABLE player_play (
 
 \copy player_play FROM 'player_play.csv' WITH (FORMAT csv, HEADER true, NULL 'NA');
 
-
+COMMIT;
