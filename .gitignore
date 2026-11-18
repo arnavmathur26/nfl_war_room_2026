@@ -1,0 +1,11 @@
+.env*
+!.env.example
+.neon
+node_modules/
+__pycache__/
+.DS_Store
+nfl_war_room_2026/
+
+# Large data files (over GitHub size limits / warnings)
+combine-data/player_play.csv
+combine-data/combine_tracking.csv
